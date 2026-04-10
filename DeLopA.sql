@@ -137,13 +137,21 @@ from TheLoai
 where MaTL not in (select MaTL from Sach)
 
 -- Sách được mượn nhiều nhất
-select top 1 s.MaSach, TuaDe, TacGia, TenNXB,
+select s.MaSach, TuaDe, TacGia, TenNXB,
 count(ms.MaThe) as SoNguoiMuon
-from Sach s, MuonSach ms, NhaXuatBan n
-where s.MaSach = ms.MaSach
-and s.MANXB = n.MANXB
+from Sach s
+join MuonSach ms on s.MaSach = ms.MaSach
+join NhaXuatBan n on s.MANXB = n.MANXB
 group by s.MaSach, TuaDe, TacGia, TenNXB
-order by SoNguoiMuon desc
+having count(ms.MaThe) = 
+(
+	select max(SL)
+	from (
+		select count(*) as SL
+		from MuonSach
+		group by MaSach
+	) t
+)
 
 -- Sách chưa ai mượn
 select TuaDe
